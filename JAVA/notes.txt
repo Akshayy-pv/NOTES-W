@@ -138,6 +138,8 @@ Multi Dimensional
 
 => instance variables ? => the variables that belong to a class instead of a method 
 
+=> variable belongs to method => local variable
+
 
 => Enhanced for loop example 
 
@@ -182,7 +184,6 @@ String Constant pool
 
 Mutable strings  => StringBuffer, StringBuilder
 --------------
-
 example => 
     StringBuffer sb = new StringBuffer("akshay");
 
@@ -245,3 +246,248 @@ static Keyword in Java
 
     public static void main(String[] args) { ... }
 
+
+
+=> Anonymous Objects/Classes - is a class without a name
+
+
+////
+OOP
+////
+
+
+Inheritance in Java
+
+    Inheritance lets a class (subclass/child) acquire fields and methods from another class (superclass/parent), enabling code reuse and establishing an "is-a" relationship.
+
+Basic Syntax
+java
+    class Animal {
+        String name;
+
+        Animal(String name) {
+            this.name = name;
+        }
+
+        void eat() {
+            System.out.println(name + " is eating.");
+        }
+    }
+
+    class Dog extends Animal {
+        Dog(String name) {
+            super(name); // calls Animal's constructor
+        }
+
+        void bark() {
+            System.out.println(name + " is barking.");
+        }
+    }
+
+    public class Main {
+        public static void main(String[] args) {
+            Dog d = new Dog("Rex");
+            d.eat();   // inherited from Animal
+            d.bark();  // defined in Dog
+        }
+    }
+
+
+Dog inherits name and eat() from Animal, and adds its own bark().
+
+    Types of Inheritance in Java
+    Type	Supported?
+    Single (A → B)	Yes
+    Multilevel (A → B → C)	Yes
+    Hierarchical (A → B, A → C)	Yes
+    Multiple (class extends 2 classes)	No — use interfaces instead
+
+
+
+Ambiguity in Java
+
+    "Ambiguity" errors happen when the compiler can't decide which method/constructor to call because multiple candidates match equally well. Here are the main scenarios
+
+    Conceptual Questions
+
+    1. What is the diamond problem? Does Java have it?
+
+        Java avoids the diamond problem for classes by disallowing multiple class inheritance (extends only one class). But it can still occur with interfaces that have default methods, when a class implements two interfaces with the same default method signature.
+
+    2. Why doesn't Java allow multiple inheritance of classes?
+
+        To avoid ambiguity when two parent classes have methods/fields with the same signature
+
+
+
+
+=>> this and super in Java
+
+    Both are reference keywords used inside instance context (constructors/methods) — this refers to the current object, super refers to the immediate parent class.
+
+this Keyword
+1. Resolve variable shadowing (parameter vs field)
+
+    class Student {
+        String name;
+
+        Student(String name) {
+            this.name = name;  // this.name = field, name = parameter
+        }
+    }
+    
+2. Call another constructor in the same class (constructor chaining)
+
+    class Box {
+        int length, width;
+
+        Box() {
+            this(10, 20);  // calls Box(int, int)
+            System.out.println("Default constructor");
+        }
+
+        Box(int length, int width) {
+            this.length = length;
+            this.width = width;
+        }
+    }
+
+Rule: this(...) must be the first statement in the constructor.
+
+3. Pass current object as an argument
+
+    class Engine {
+        void start(Car c) { }
+    }
+
+    class Car {
+        Engine engine = new Engine();
+        void drive() {
+            engine.start(this);  // passing current Car object
+        }
+    }
+
+4. Return current object (method chaining / builder pattern)
+
+    class Builder {
+        Builder setName(String name) {
+            // ...
+            return this;
+        }
+        Builder setAge(int age) {
+            // ...
+            return this;
+        }
+    }
+
+new Builder().setName("Akshay").setAge(23);
+
+super Keyword
+1. Call parent class constructor
+
+    class Animal {
+        Animal(String name) {
+            System.out.println("Animal: " + name);
+        }
+    }
+
+    class Dog extends Animal {
+        Dog(String name) {
+            super(name);  // must be first statement
+            System.out.println("Dog created");
+        }
+    }
+
+Rule: super(...) must be the first statement in the subclass constructor. If you don't write it explicitly, Java inserts super() (no-arg) automatically — which fails to compile if the parent has no no-arg constructor.
+
+2. Call parent class's overridden method
+
+    class Animal {
+        void makeSound() {
+            System.out.println("Some sound");
+        }
+    }
+
+    class Cat extends Animal {
+        @Override
+        void makeSound() {
+            super.makeSound();  // calls Animal's version first
+            System.out.println("Meow");
+        }
+    }
+
+Output:
+    Some sound
+    Meow
+
+3. Access parent class's field (when shadowed by subclass field)
+
+    class Animal {
+        String type = "Generic Animal";
+    }
+
+    class Dog extends Animal {
+        String type = "Dog";
+
+        void printTypes() {
+            System.out.println(type);       // Dog
+            System.out.println(super.type); // Generic Animal
+        }
+    }
+
+
+Q: Can you use both this() and super() in the same constructor?
+
+    No. Both must be the first statement, so only one can appear — you can't chain to another constructor in the same class and call the parent constructor from the same place. (Though this(...) will itself eventually reach a constructor that calls super(...), just not in the same constructor body.)
+
+
+    class Dog extends Animal {
+        Dog() {
+            this("Rex");  // OK — chains to Dog(String)
+        }
+        Dog(String name) {
+            super(name);  // OK — this constructor calls super
+        }
+    }
+
+Want me to cover constructor chaining rules in depth next (order of execution across this()/super() chains), since that's a frequent follow-up?
+
+
+
+Method Overriding in Java
+
+    Overriding happens when a subclass provides its own implementation of a method that's already defined in its superclass — same method signature, different behavior. It's how Java achieves runtime polymorphism.
+
+Basic Example
+
+    class Animal {
+        void makeSound() {
+            System.out.println("Some generic sound");
+        }
+    }
+
+    class Dog extends Animal {
+        @Override
+        void makeSound() {
+            System.out.println("Bark");
+        }
+    }
+
+    Animal a = new Dog();
+    a.makeSound();  // "Bark" — resolved at RUNTIME based on actual object type
+
+This is dynamic method dispatch: even though the reference type is Animal, the JVM calls Dog's version because that's the actual object.
+
+    Rules for Valid Overriding
+
+    Rule	        Detail
+    Method          name	Must be exactly the same
+    Parameters	    Must be exactly the same (type, order, count)
+    Return type	    Same, or a covariant (subtype) return type
+    Access modifier	Can't be more restrictive (can widen, can't narrow)
+
+    static methods	Cannot be overridden — only hidden
+    final methods	Cannot be overridden at all
+    private methods	Not inherited, so can't be overridden (a new method with the same name in subclass is unrelated)
+
+    Exceptions	    Overriding method can throw same, narrower, or no checked exceptions — not broader ones
