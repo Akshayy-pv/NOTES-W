@@ -20,9 +20,43 @@ What is jave ?
 =: Multithreaded: Built-in support for concurrent programming
 
 
+
+
+=> OOP (Object Oriented Programming)
+--------------------------------------
+
+    Object-Oriented Programming is a paradigm where you model your program as a collection of objects, and each object represents a real-world (or conceptual) entity
+
+=> what is paradigm? 
+    A paradigm is just a style or approach to writing code
+
+
 ? why java is said to be object-oriented programming language? 
 
     => "Java is called an object-oriented programming language because its design revolves around classes and objects rather than functions and logic alone. It follows the four main OOP principles — encapsulation, inheritance, polymorphism, and abstraction — and every piece of code, including the main method, must reside inside a class. This makes the code more modular, reusable, and easier to maintain."
+
+
+? why java is mainly said as object oriented? 
+
+    the languages like 
+    C++
+    C#
+    Python
+    Ruby
+    Kotlin
+    Swift
+    JavaScript
+
+    all these support the 4 OOP pillars but mainly java is said because in  java literally cannot execute any code without it living inside a class. Even printing "Hello" requires
+
+    >>> - No OOP support at all   ->  C, Haskell -> Language has no concept of classes/objects
+
+    >>> - Supports OOP, but optional  -> Python, C++, JavaScript  ->  You can write OOP or skip it — multi-paradigm
+
+    >>> - Forces OOP on everything  -> Java  ->  Every single line must be inside a class
+
+
+    
     
 ? what is class => it's a blue print for creating object 
     -> is class create object ==> no
