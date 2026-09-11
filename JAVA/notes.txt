@@ -1,3 +1,76 @@
+==============================
+LANGUAGE COMPARISON
+==============================
+
+--- C ---
+Platform   : Dependent
+Execution  : Compiled
+Tool       : GCC
+
+--- C++ ---
+Platform   : Dependent
+Execution  : Compiled
+Tool       : G++
+
+--- Java ---
+Platform   : Independent
+Execution  : Compiled + Interpreted (Hybrid)
+Tool       : javac (to bytecode)
+             + JVM (interprets/JIT)
+
+--- Python ---
+Platform   : Independent
+Execution  : Interpreted
+Tool       : CPython interpreter
+
+--- JavaScript ---
+Platform   : Independent
+Execution  : Interpreted
+             (+ JIT in modern engines)
+Tool       : V8, SpiderMonkey
+
+--- C# ---
+Platform   : Independent
+Execution  : Compiled + Interpreted (Hybrid)
+Tool       : csc (to CIL)
+             + .NET CLR
+
+==============================
+NOTES
+==============================
+Platform Dependent:
+  Code only runs on the OS/CPU
+  it was built for. Needs
+  recompiling elsewhere.
+
+Platform Independent:
+  Same code/bytecode runs on
+  any OS without changes
+  (needs a runtime installed,
+  e.g. JVM, CLR, interpreter).
+
+Compiled:
+  Whole source translated to
+  machine code BEFORE running.
+  Produces a standalone file.
+
+Interpreted:
+  Code translated and run
+  line-by-line AT runtime.
+  No separate executable.
+
+Hybrid (Java/C#):
+  Source compiled once to
+  bytecode (platform-independent).
+  That bytecode is then
+  interpreted/JIT-compiled by
+  a runtime (JVM/CLR) when
+  the program runs.
+==============================
+
+
+
+
 What is jave ? 
     => Java is a high-level, object-oriented programming language developed by Sun Microsystems (released in 1995), now owned by Oracle.
 
@@ -56,7 +129,7 @@ What is jave ?
     >>> - Forces OOP on everything  -> Java  ->  Every single line must be inside a class
 
 
-    
+
     
 ? what is class => it's a blue print for creating object 
     -> is class create object ==> no
