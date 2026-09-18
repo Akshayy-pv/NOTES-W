@@ -1,0 +1,96 @@
+why we use system design? 
+
+    system design is about architecting software to make system more scalable, efficient, and available as usage grows
+
+
+STEP 1
+-------
+
+when start thing to ask before start the system design :
+ 
+    . what is this application ?
+    . what is the type?
+    . is it data intensive application or computer intensive application ?
+
+
+
+=> Data Intensive application : 
+    Data: store, gather, move, add 
+    issues: database response, network calls, server,
+
+    -> most of the application are data intensive example instagram, etc..
+
+    examples: 
+        - Instagram feed
+        - whatsapp message
+        - Banking transaction 
+        - Analytics dash board 
+        - Log processing system 
+
+    worries:
+        - how fast can we read the data? 
+        - how safely are we going to store the data? 
+        - how many users can access it  simultaneously ?
+        - what happens if machine dies ?
+
+    to Improve use : 
+        - databases 
+        - cashing 
+        - replication 
+        - sharding 
+        - consistency 
+        - multiple DBs 
+        - aggressive caching 
+        - CDNs for content 
+
+
+=> Compute Intensive Application 
+
+    - challenge -> Heavy computation 
+    -> cpu / GPU bound 
+
+    examples: 
+        - Image Processing 
+        - Video Rendering 
+        - ML Model Training 
+        - Simulation 
+        - Cryptography 
+
+    worries: 
+        - how fast cam we compute? 
+        - can we parallelize this work? 
+        - how to reduce the computational cost? 
+        - can we use GPU instead of cpu?
+
+    Simulor Machine 
+        - parallel simulations 
+        - GPU instead of cpu 
+        - cost of computation 
+        - good algorithms 
+
+=> some time a system contain features like data intensive and also computer intensive, the we look the feature 
+
+
+STEP 2
+------
+
+List the functional and non- functional requirements 
+
+-> functional requirements: list all features in the application 
+
+
+-> non-functional requirements: 
+    examples: 
+        - should handle 1 millions users 
+        - Response Time < 200ms 
+        - availability 
+        - data encryption 
+        - scalable up to 10* traffic 
+        - fault tolerate system
+
+    HOW: 
+       - scalability - horizontal / vertical 
+       - availability -> uptime = SLA /SLO 
+       - Reliability -> No data loss 
+       - Performance -> latency  
+       - security -> Authentication, authorization, Encryption

@@ -74,6 +74,10 @@ Hybrid (Java/C#):
 What is jave ? 
     => Java is a high-level, object-oriented programming language developed by Sun Microsystems (released in 1995), now owned by Oracle.
 
+What makes a language "high-level"?
+
+A high-level language is one that is written to be close to human language
+
 =: Java is platform independent
 
     How it works:
@@ -127,7 +131,6 @@ What is jave ?
     >>> - Supports OOP, but optional  -> Python, C++, JavaScript  ->  You can write OOP or skip it — multi-paradigm
 
     >>> - Forces OOP on everything  -> Java  ->  Every single line must be inside a class
-
 
 
     
@@ -598,3 +601,142 @@ This is dynamic method dispatch: even though the reference type is Animal, the J
     private methods	Not inherited, so can't be overridden (a new method with the same name in subclass is unrelated)
 
     Exceptions	    Overriding method can throw same, narrower, or no checked exceptions — not broader ones
+
+
+
+packages : creating a project structure, put files in a folder. 
+
+
+access modifiers :- Java has four access modifiers that control visibility of classes, methods, and variables:
+
+
+    1. public - access from any where, any class, any package 
+
+        -in same package there is no need of public, but if different packages, public should be there 
+
+        public class car {
+            public String model;
+        }
+
+    2. private — Accessible only within the same class. Not even subclasses can access it.
+
+    3. default (no modifier / package-private) — Accessible only within the same package. If you don't write any modifier, this is what you get.
+
+    4. protected — Accessible within the same package, AND from subclasses even if they're in a different package.
+
+
+Polymorphism : means "many forms" — the ability of an object to behave differently depending on the context it's used in. In Java, there are two main types:
+
+1. Compile-time Polymorphism (Method Overloading)
+
+Same method name, different parameters (number, type, or order). Resolved at compile time.
+
+Example
+
+    class Calculator {
+        int add(int a, int b) {
+            return a + b;
+        }
+
+        double add(double a, double b) {
+            return a + b;
+        }
+
+        int add(int a, int b, int c) {
+            return a + b + c;
+        }
+    }
+
+The compiler decides which add() to call based on the arguments you pass — this is also called static binding.
+
+2. Runtime Polymorphism (Method Overriding)
+
+Same method signature, but a subclass provides its own implementation of a method already defined in its parent class. Resolved at runtime based on the actual object type — this is dynamic binding.
+
+example 
+
+    class Animal {
+        void sound() {
+            System.out.println("Some generic animal sound");
+        }
+    }
+
+    class Dog extends Animal {
+        @Override
+        void sound() {
+            System.out.println("Bark");
+        }
+    }
+
+    class Cat extends Animal {
+        @Override
+        void sound() {
+            System.out.println("Meow");
+        }
+    }
+
+    public class Main {
+        public static void main(String[] args) {
+            Animal a1 = new Dog();
+            Animal a2 = new Cat();
+
+            a1.sound(); // Bark
+            a2.sound(); // Meow
+        }
+    }
+
+Notice: the reference type is Animal, but the actual method that runs depends on the object type (Dog or Cat) — decided at runtime. This is the classic "upcasting + dynamic method dispatch" pattern.
+
+
+final 
+
+The final keyword in Java can be applied to variables, methods, and classes — each with a different meaning.
+
+1. final Variable — Value can't be reassigned
+
+Once assigned, it becomes a constant.
+
+    final int MAX_SPEED = 120;
+    MAX_SPEED = 150; // ❌ Compile error
+
+For objects, final means the reference can't change — but the object's internal state can still be mutated.
+
+
+    final StringBuilder sb = new StringBuilder("Hello");
+    sb.append(" World"); // ✅ allowed — modifying content
+    sb = new StringBuilder("New"); // ❌ not allowed — reassigning reference
+
+Blank final variable: declared without initialization, but must be assigned exactly once (often in the constructor).
+
+
+    class Car {
+        final String engineNumber;
+
+        Car(String engineNumber) {
+            this.engineNumber = engineNumber; // must be set here
+        }
+    }
+
+2. final Method — Can't be overridden
+
+    class Animal {
+        final void breathe() {
+            System.out.println("Breathing...");
+        }
+    }
+
+    class Dog extends Animal {
+        // void breathe() { } // ❌ Compile error — cannot override final method
+    }
+
+Used when you want to lock down behavior that subclasses shouldn't be allowed to change (common in security-sensitive or core logic methods).
+
+3. final Class — Can't be extended/inherited
+
+    final class Utility {
+        static void helper() { }
+    }
+
+    // class MyUtility extends Utility { } // ❌ Compile error
+
+Famous real-world example: String, Integer, and other wrapper classes in Java are final — this is intentional, partly for security and immutability guarantees.
