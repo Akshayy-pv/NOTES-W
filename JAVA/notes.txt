@@ -740,3 +740,417 @@ Used when you want to lock down behavior that subclasses shouldn't be allowed to
     // class MyUtility extends Utility { } // ❌ Compile error
 
 Famous real-world example: String, Integer, and other wrapper classes in Java are final — this is intentional, partly for security and immutability guarantees.
+
+
+
+=> Object class 
+
+
+    class Car {
+        // implicitly: class Car extends Object
+    }
+
+This means every object you create automatically inherits a set of methods from Object.
+
+Key methods in Object
+1. toString()
+
+Returns a string representation of the object. Default output is ClassName@hashcode (not very useful), so it's almost always overridden.
+
+
+    class Car {
+        String model = "Tesla";
+
+        @Override
+        public String toString() {
+            return "Car: " + model;
+        }
+    }
+
+    Car c = new Car();
+    System.out.println(c); // Car: Tesla  (without override: Car@1b6d3586)
+
+2. equals(Object obj)
+
+Default implementation checks reference equality (==) — i.e., are they the exact same object in memory. Almost always overridden to compare content.
+
+
+    class Point {
+        int x, y;
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) return true;
+            if (!(obj instanceof Point)) return false;
+            Point p = (Point) obj;
+            return x == p.x && y == p.y;
+        }
+    }
+3. hashCode()
+
+Returns an integer hash used by hash-based collections (HashMap, HashSet, HashTable).
+
+Golden rule: if you override equals(), you must override hashCode() too — equal objects must have equal hash codes, or hash-based collections will misbehave.
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(x, y);
+    }
+
+4. getClass()
+
+Returns the runtime class of the object — used for reflection, type checks.
+
+    Car c = new Car();
+    System.out.println(c.getClass().getName()); // Car
+
+5. clone()
+
+Creates a copy of the object. Requires the class to implement the Cloneable interface, or it throws CloneNotSupportedException. Rarely used directly in modern Java — copy constructors are usually preferred.
+
+6. finalize()
+
+Called by the garbage collector before destroying an object. Deprecated since Java 9 — don't use it; rely on try-with-resources or explicit cleanup instead.
+
+7. Thread-related: wait(), notify(), notifyAll()
+
+Used for thread synchronization (covered when you get to multithreading — not needed right now).
+
+
+
+Type Casting 
+
+Type casting in Java means converting one data type into another. It splits into primitive casting and object casting (upcasting/downcasting) — two different concepts that share the word "casting."
+
+1. Primitive Type Casting
+
+=> Widening (Implicit) — automatic, no data loss risk
+
+    Smaller type → larger type. Done automatically by the compiler.
+
+        int num = 100;
+        double d = num; // int → double, automatic
+
+    Order: byte → short → int → long → float → double
+
+=> Narrowing (Explicit) — manual, possible data loss
+
+    Larger type → smaller type. You must explicitly cast it.
+
+        double d = 9.78;
+        int num = (int) d; // 9 — decimal part truncated, not rounded
+
+        long l = 100000L;
+        int i = (int) l; // possible overflow if value exceeds int range
+
+2. Object Casting (Upcasting & Downcasting)
+
+This applies to class hierarchies — converting between a reference of a parent type and a child type.
+
+    => Upcasting — Subclass → Superclass (implicit, safe)
+
+        class Animal {
+            void eat() { System.out.println("Eating..."); }
+        }
+
+        class Dog extends Animal {
+            void bark() { System.out.println("Barking..."); }
+        }
+
+        Animal a = new Dog(); // upcasting — happens automatically
+        a.eat(); // ✅ works
+        // a.bark(); // ❌ compile error — Animal reference doesn't know about bark()
+    Always safe, done implicitly.
+    You lose access to the subclass-specific methods through that reference (even though the actual object is still a Dog underneath).
+    This is the mechanism that makes runtime polymorphism work — the JVM still calls the overridden method based on the actual object type.
+
+    =>  Downcasting — Superclass → Subclass (explicit, risky)
+
+        Animal a = new Dog(); // upcast first
+        Dog d = (Dog) a;      // downcast — explicit cast required
+        d.bark(); // ✅ now accessible
+
+    Downcasting is only safe when the object actually is an instance of the target type. If not:
+
+        Animal a = new Animal();
+        Dog d = (Dog) a; // ❌ compiles, but throws ClassCastException at runtime
+
+
+
+ABSTRACT class 
+---------------
+
+The abstract keyword lets you declare classes and methods that are incomplete by design
+
+
+    1. Abstract Class
+
+    A class declared with abstract cannot be instantiated directly. It exists to be extended.
+
+        abstract class Animal {
+            String name;
+
+            Animal(String name) {
+                this.name = name;
+            }
+
+            // Abstract method — no body, just a signature
+            abstract void makeSound();
+
+            // Regular (concrete) method — can have a body
+            void sleep() {
+                System.out.println(name + " is sleeping");
+            }
+        }
+
+        Animal a = new Animal("Generic"); // ❌ compile error — can't instantiate abstract class
+        Subclass must implement all abstract methods
+
+        class Dog extends Animal {
+            Dog(String name) {
+                super(name);
+            }
+
+            @Override
+            void makeSound() {
+                System.out.println(name + " says Bark");
+            }
+        }
+
+        Animal a = new Dog("Rex"); // ✅ allowed — upcasting a concrete subclass
+        a.makeSound(); // Rex says Bark
+        a.sleep();     // Rex is sleeping (inherited concrete method)
+
+    If Dog doesn't implement makeSound(), it must also be declared abstract, or it's a compile error.
+
+
+    2. Abstract Method
+
+        Declared without a body, ends with ;.
+        Can only exist inside an abstract class (or interface).
+        Forces every concrete (non-abstract) subclass to provide an implementation.
+
+        abstract void makeSound(); // no {} body, just a signature
+
+
+
+INNER CLASS 
+------------
+
+
+An inner class is a class defined inside another class. Java has four types, each with different scope and use cases.
+
+    1. Regular (Non-static) Inner Class
+
+    Tied to an instance of the outer class — it can't exist without one, and it has direct access to the outer class's fields/methods, including private ones.
+
+        class Outer {
+            private String name = "Outer Object";
+
+            class Inner {
+                void display() {
+                    System.out.println("Accessing: " + name); // direct access to outer's private field
+                }
+            }
+        }
+
+        Outer outer = new Outer();
+        Outer.Inner inner = outer.new Inner(); // note the syntax — needs an outer instance
+        inner.display(); // Accessing: Outer Object
+
+    Cannot have static members (except constants).
+    Holds an implicit reference to its enclosing instance.
+
+    2. Static Nested Class
+
+    Declared static — behaves like a top-level class, but namespaced inside the outer class. Does not need an outer instance, and can't access the outer class's instance members directly (only static ones).
+
+        class Outer {
+            static int count = 5;
+
+            static class Nested {
+                void display() {
+                    System.out.println("Count: " + count); // ✅ can access static members
+                }
+            }
+        }
+
+        Outer.Nested nested = new Outer.Nested(); // no outer instance needed
+        nested.display(); // Count: 5
+
+    This is the most commonly used inner class type in real code
+
+
+    4. Anonymous Class
+
+    A class with no name, declared and instantiated in a single expression — typically used to override a method on the fly, often for interfaces or abstract classes.
+
+
+        interface Greeting {
+            void sayHello();
+        }
+
+        Greeting g = new Greeting() {
+            @Override
+            public void sayHello() {
+                System.out.println("Hello from anonymous class!");
+            }
+        };
+        g.sayHello();
+
+
+/////////////////////////////////////////////////////////////
+
+//// USEIng of abstract class and anonymous class 
+
+    abstract class A {
+        public abstract void show();
+    }
+
+    public class demo{
+        public static void main(String a[])
+        {
+            A obj = new A(){
+                public void show(){
+                    System.out.println("in new show");
+                }
+            };
+        }
+    }
+
+////////////////////////////////////////////////////////////
+
+interface
+-----------
+
+An interface is a contract — it defines what a class must do, without specifying how. Any class that implements an interface must provide implementations for its methods.
+
+Basic Syntax
+
+    interface Vehicle {
+        void start();  // implicitly public and abstract
+        void stop();
+    }
+
+    class Car implements Vehicle {
+        @Override
+        public void start() {
+            System.out.println("Car starting...");
+        }
+
+        @Override
+        public void stop() {
+            System.out.println("Car stopping...");
+        }
+    }
+
+    Vehicle v = new Car(); // upcasting to interface type
+    v.start(); // Car starting...
+
+INTERFACE — KEY RULES
+======================
+ 
+1. Methods
+   Implicitly public abstract (unless default/static/private)
+ 
+2. Fields
+   Implicitly public static final — must be initialized, can't change
+ 
+3. Instantiation
+   Cannot be instantiated directly (new Vehicle() is not allowed)
+ 
+4. Implementing class
+   Must implement all abstract methods, or itself be declared abstract
+ 
+5. Multiple implementation
+   A class CAN implement multiple interfaces (unlike single class inheritance)
+ 
+6. Extends
+   An interface can extend multiple other interfaces
+ 
+
+
+Multiple Interface Implementation
+
+    This is the big reason interfaces exist — Java doesn't allow multiple class inheritance, but a class can implement many interfaces:
+
+
+    interface Flyable {
+        void fly();
+    }
+
+    interface Swimmable {
+        void swim();
+    }
+
+    class Duck implements Flyable, Swimmable {
+        @Override
+        public void fly() { System.out.println("Duck flying"); }
+
+        @Override
+        public void swim() { System.out.println("Duck swimming"); }
+    }
+    Interface fields are constants
+
+    interface Constants {
+        int MAX_SPEED = 200; // implicitly public static final
+    }
+
+    System.out.println(Constants.MAX_SPEED); // 200
+    // Constants.MAX_SPEED = 300; // ❌ compile error — final, can't reassign
+    Modern interface features (Java 8+)
+    default methods — provide a body, optional to override
+
+    interface Vehicle {
+        void start();
+
+        default void honk() {
+            System.out.println("Beep beep!");
+        }
+    }
+
+    class Car implements Vehicle {
+        @Override
+        public void start() { System.out.println("Car starting..."); }
+        // honk() not overridden — uses default implementation
+    }
+
+    Vehicle v = new Car();
+    v.honk(); // Beep beep!
+
+This let Java add new methods to existing interfaces (like List.forEach()) without breaking every class that already implemented them.
+
+
+
+ABSTRACT CLASS vs INTERFACE
+============================
+ 
+1. Keyword
+   Abstract class : extends
+   Interface      : implements
+ 
+2. Inheritance
+   Abstract class : Single — one class can extend only one abstract class
+   Interface      : Multiple — a class can implement many interfaces
+ 
+3. Fields
+   Abstract class : Any type, any modifier (instance state allowed)
+   Interface      : public static final only — no instance state
+ 
+4. Constructors
+   Abstract class : Yes (called via super())
+   Interface      : No
+ 
+5. Methods
+   Abstract class : Mix of abstract + concrete freely
+   Interface      : Abstract, default, static, private (Java 8+/9+)
+ 
+6. Access modifiers on methods
+   Abstract class : Any (public, protected, etc.)
+   Interface      : Implicitly public (except private helpers)
+ 
+7. Purpose
+   Abstract class : Models "is-a" with shared base state/behavior
+   Interface      : Models "can-do" — a pure capability/contract
+ 

@@ -94,3 +94,74 @@ List the functional and non- functional requirements
        - Reliability -> No data loss 
        - Performance -> latency  
        - security -> Authentication, authorization, Encryption
+       - maintainability - code modularity 
+       - observability - monitoring & logging 
+
+
+
+
+
+
+
+┌─────────────────────────────────────────────────────────┐
+│ BROWSER CACHE                                              │
+│ Checks if "google.com" IP is cached                        │
+│ ▸ Sends: domain name "google.com"                          │
+│ ▸ Receives (if hit): cached IP address                     │
+└───────────────────────┬─────────────────────────────────────┘
+                         │ (cache miss)
+                         ▼
+┌─────────────────────────────────────────────────────────┐
+│ OS CACHE                                                    │
+│ Checks OS-level DNS cache                                   │
+│ ▸ Sends: domain name "google.com"                           │
+│ ▸ Receives (if hit): cached IP address                      │
+└───────────────────────┬─────────────────────────────────────┘
+                         │ (cache miss)
+                         ▼
+┌─────────────────────────────────────────────────────────┐
+│ ISP                                                          │
+│ Forwards unresolved query to its configured resolver          │
+│ ▸ Sends: DNS query for "google.com" (Type A record)            │
+│ ▸ Receives: nothing yet — just forwards it onward               │
+└───────────────────────┬─────────────────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────────────┐
+│ DNS RESOLVER (Recursive Resolver)                             │
+│ Starts the resolution chain on your behalf                     │
+│ ▸ Sends: "Who has google.com?" → to Root Server                  │
+│ ▸ Receives: referral to the .com TLD server                       │
+└───────────────────────┬─────────────────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────────────┐
+│ ROOT SERVER                                                    │
+│ Doesn't know the IP — only knows who manages ".com"              │
+│ ▸ Sends back: IP address of the ".com" TLD server                 │
+│ ▸ Receives: nothing — this is a one-way referral                   │
+└───────────────────────┬─────────────────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────────────┐
+│ TLD SERVER (.com)                                               │
+│ Knows which server is authoritative for "google.com"             │
+│ ▸ Sends back: IP of google.com's Authoritative Name Server         │
+│ ▸ Receives: nothing — again, just a referral                        │
+└───────────────────────┬─────────────────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────────────┐
+│ AUTHORITATIVE NAME SERVER                                        │
+│ Holds the actual DNS record for google.com                        │
+│ ▸ Sends back: the real IP address (A record),                       │
+│    e.g. 142.250.183.14                                                │
+└───────────────────────┬─────────────────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────────────┐
+│ RESOLVER → ISP → OS → BROWSER                                     │
+│ IP address travels back up the chain                                │
+│ ▸ Each layer caches it (with a TTL) for future requests               │
+│ ▸ Browser now has the IP and proceeds to TCP connection                │
+└─────────────────────────────────────────────────────────────┘
